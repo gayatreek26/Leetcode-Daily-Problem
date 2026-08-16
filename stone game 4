@@ -1,0 +1,22 @@
+class Solution:
+    def stoneGameIX(self, stones):
+        count = [0, 0, 0]
+
+        for stone in stones:
+            count[stone % 3] += 1
+
+        def check(cnt):
+            if cnt[1] == 0:
+                return False
+
+            cnt[1] -= 1
+
+            moves = 1 + min(cnt[1], cnt[2]) * 2 + cnt[0]
+
+            if cnt[1] > cnt[2]:
+                cnt[1] -= 1
+                moves += 1
+
+            return moves % 2 == 1 and cnt[1] != cnt[2]
+
+        return check(count[:]) or check([count[0], count[2], count[1]])
