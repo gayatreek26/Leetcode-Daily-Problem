@@ -1,0 +1,68 @@
+from collections import Counter
+
+class Solution:
+    def lexPalindromicPermutation(self, s: str, target: str) -> str:
+        n = len(s)
+        count = Counter(s)
+
+        # A palindrome is possible only if at most one character
+        # has an odd frequency.
+        odd = [ch for ch in count if count[ch] % 2 == 1]
+
+        if len(odd) > 1:
+            return ""
+
+        middle = odd[0] if odd else ""
+
+        # Count characters available for the left half
+        half = [0] * 26
+
+        for ch, freq in count.items():
+            half[ord(ch) - ord('a')] = freq // 2
+
+        half_len = n // 2
+        prefix = []
+
+        # Check whether current prefix can lead to
+        # a palindrome strictly greater than target
+        def possible():
+            # Make the largest possible remaining left half
+            left = prefix[:]
+
+            for i in range(25, -1, -1):
+                left.extend([chr(ord('a') + i)] * half[i])
+
+            left_str = ''.join(left)
+
+            palindrome = left_str + middle + left_str[::-1]
+
+            return palindrome > target
+
+        # Build lexicographically smallest valid left half
+        for _ in range(half_len):
+            found = False
+
+            for i in range(26):
+                if half[i] == 0:
+                    continue
+
+                # Choose character
+                half[i] -= 1
+                prefix.append(chr(ord('a') + i))
+
+                # Check if a valid completion exists
+                if possible():
+                    found = True
+                    break
+
+                # Undo choice
+                prefix.pop()
+                half[i] += 1
+
+            if not found:
+                return ""
+
+        left = ''.join(prefix)
+        answer = left + middle + left[::-1]
+
+        return answer if answer > target else ""
